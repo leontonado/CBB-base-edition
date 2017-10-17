@@ -33,7 +33,7 @@
 #include "allHeaders.h"
 //This version runs in the format of frame,which 8 pthread run on 8 individual cores 
 
-#define RUNMAINDPDK
+//#define RUNMAINDPDK
 #ifdef RUNMAINDPDK
 
 #define RTE_LOGTYPE_APP RTE_LOGTYPE_USER1
@@ -41,7 +41,7 @@
 
 #define MBUF_CACHE_SIZE 128
 #define NUM_MBUFS 4095
-#define	NUM_MBUFS2 255
+#define	NUM_MBUFS2 511
 #define interval 4
 static const char *MBUF_POOL = "MBUF_POOL";
 static const char *Mbuf_for_precoding_pool = "Mbuf_for_precoding_pool";
@@ -349,11 +349,11 @@ static int check_empty_Ring()
 }
 static int Data_Retrive_Loop() 
 {
-	struct rte_mbuf *data1 = NULL;
-	struct rte_mbuf *data2 = NULL;
-	struct rte_mbuf *data3 = NULL;
-	struct rte_mbuf *data4 = NULL;
-	struct rte_mbuf *data = NULL;
+	// struct rte_mbuf *data1 = NULL;
+	// struct rte_mbuf *data2 = NULL;
+	// struct rte_mbuf *data3 = NULL;
+	// struct rte_mbuf *data4 = NULL;
+	__attribute__((unused)) struct rte_mbuf *data = NULL;
 	void *Data_User_1=NULL;
 	void *Data_User_2=NULL;
 	void *Data_User_3=NULL;
@@ -403,41 +403,41 @@ static int Data_Retrive_Loop()
 
 	while (!quit)
 	{		
-		while(data1 ==	NULL) {
-			usleep(100);
-			data1 = rte_pktmbuf_alloc(mbuf_precode_pool);
-		}
-		while(data2 ==	NULL) {
-			usleep(100);
-			data2 = rte_pktmbuf_alloc(mbuf_precode_pool);
-		}
-		while(data3 ==	NULL) {
-			usleep(100);
-			data3 = rte_pktmbuf_alloc(mbuf_precode_pool);
-		}
-		while(data4 ==	NULL) {
-			usleep(100);
-			data4 = rte_pktmbuf_alloc(mbuf_precode_pool);
-		}
-		
+		// while(data1 ==	NULL) {
+		// 	usleep(100);
+		// 	data1 = rte_pktmbuf_alloc(mbuf_precode_pool);
+		// }
+		// while(data2 ==	NULL) {
+		// 	usleep(100);
+		// 	data2 = rte_pktmbuf_alloc(mbuf_precode_pool);
+		// }
+		// while(data3 ==	NULL) {
+		// 	usleep(100);
+		// 	data3 = rte_pktmbuf_alloc(mbuf_precode_pool);
+		// }
+		// while(data4 ==	NULL) {
+		// 	usleep(100);
+		// 	data4 = rte_pktmbuf_alloc(mbuf_precode_pool);
+		// }		
 		if (!check_empty_Ring()){			
 				Retrive_DPDK_count++;
-				rte_ring_dequeue(Ring_RetriveData1, &Data_User_1);
-				rte_ring_dequeue(Ring_RetriveData2, &Data_User_2);
-				rte_ring_dequeue(Ring_RetriveData3, &Data_User_3);
-				rte_ring_dequeue(Ring_RetriveData4, &Data_User_4);
-				rte_ring_dequeue(Ring_RetriveData5, &Data_User_5);
-				rte_ring_dequeue(Ring_RetriveData6, &Data_User_6);
-				rte_ring_dequeue(Ring_RetriveData7, &Data_User_7);
-				rte_ring_dequeue(Ring_RetriveData8, &Data_User_8);
-				rte_ring_dequeue(Ring_RetriveData9, &Data_User_9);
-				rte_ring_dequeue(Ring_RetriveData10, &Data_User_10);
-				rte_ring_dequeue(Ring_RetriveData11, &Data_User_11);
-				rte_ring_dequeue(Ring_RetriveData12, &Data_User_12);
-				rte_ring_dequeue(Ring_RetriveData13, &Data_User_13);
-				rte_ring_dequeue(Ring_RetriveData14, &Data_User_14);
-				rte_ring_dequeue(Ring_RetriveData15, &Data_User_15);
-				rte_ring_dequeue(Ring_RetriveData16, &Data_User_16);
+				while(rte_ring_dequeue(Ring_RetriveData1, &Data_User_1) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData2, &Data_User_2) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData3, &Data_User_3) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData4, &Data_User_4) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData5, &Data_User_5) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData6, &Data_User_6) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData7, &Data_User_7) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData8, &Data_User_8) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData9, &Data_User_9) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData10, &Data_User_10) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData11, &Data_User_11) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData12, &Data_User_12) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData13, &Data_User_13) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData14, &Data_User_14) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData15, &Data_User_15) < 0);
+				while(rte_ring_dequeue(Ring_RetriveData16, &Data_User_16) < 0);
+
 				User_1 = rte_pktmbuf_mtod_offset((struct rte_mbuf *)Data_User_1, complex32 *,0 );
 				User_2 = rte_pktmbuf_mtod_offset((struct rte_mbuf *)Data_User_2, complex32 *,0 );
 				User_3 = rte_pktmbuf_mtod_offset((struct rte_mbuf *)Data_User_3, complex32 *,0 );
@@ -457,11 +457,15 @@ static int Data_Retrive_Loop()
 				//Precode_processing
 				k = 0;
 				while(k<4){
-					if(k == 0) data = data1;
-						else if (k == 1) data = data2;
-						else if (k == 2) data = data3;
-						else  data = data4;
-					for(i = subcar*N_SYM*N_STS/4*k;i < subcar*N_SYM*N_STS/4*(k+1);i++){
+					// if(k == 0) data = data1;
+					// 	else if (k == 1) data = data2;
+					// 	else if (k == 2) data = data3;
+					// 	else  data = data4;
+					while(data == NULL) {
+						usleep(100);
+						data = rte_pktmbuf_alloc(mbuf_precode_pool);
+					}
+					for(i = subcar*N_SYM*N_STS/4*k ; i < subcar*N_SYM*N_STS/4*(k+1); i++){
 						X[0] = *(User_1 + i);
 						X[1] = *(User_2 + i);
 						X[2] = *(User_3 + i);
@@ -478,18 +482,20 @@ static int Data_Retrive_Loop()
 						X[13] = *(User_14 + i);
 						X[14] = *(User_15 + i);
 						X[15] = *(User_16 + i);						
-						dest = rte_pktmbuf_mtod_offset(data, complex32 *, 16*(i-subcar*N_SYM*N_STS/4*k));
-						Matrix_Mult_AVX2_16(h,X,dest);					
+						//dest = rte_pktmbuf_mtod_offset(data, complex32 *, 16*(i-subcar*N_SYM*N_STS/4*k));
+						//Matrix_Mult_AVX2_16(h,X,dest);					
 					}
 					//memcpy(precode_data[k],rte_pktmbuf_mtod_offset(data, complex32 *,0),subcar*N_SYM*N_STS/4*16);
 					rte_ring_enqueue(Ring_DatatoRRU,data);
+					data = NULL;
 					k++;
 				}
-				data1 = NULL ;
-				data2 = NULL ;
-				data3 = NULL ;
-				data4 = NULL ;
-				
+				// data1 = NULL ;
+				// data2 = NULL ;
+				// data3 = NULL ;
+				// data4 = NULL ;
+				data = NULL ;
+								
 				/*FILE *ts =fopen("precoding_data.txt","w");
 					for(i=0;i<4;i++)
 						printStreamToFile(precode_data[i],subcar*N_SYM*N_STS/4*16,ts);	*/

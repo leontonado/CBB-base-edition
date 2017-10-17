@@ -38,11 +38,13 @@ extern void Data_CSD(complex32 **subcar_map_data, int N_SYM, complex32 **csd_dat
 #ifdef AVX2
 extern void __Data_CSD_aux(complex32 **subcar_map_data, int N_SYM, complex32 **csd_data,int NTXindex);//maybe use for multi pthread
 extern void Matrix_Mult_AVX2_16(complex32 (*h)[16],complex32* x,complex32* dest);  //use for precoding
+extern void Matrix_Mult_AVX2_8(complex32 (*h)[8],complex32* x,complex32* dest) ; //use for precoding
 #endif
 //IFFT
 extern void csd_data_IDFT(complex32 *csd_data, complex32 *trans_data, int N_SYM);
 extern void ifftShiftandIFFTData(complex32* dataAfterCSD,complex32* dataAfterIFFT);
 extern void addCPforData(complex32* pAfterIFFT,complex32* pBeforeAddWin,int N_SYM, int symbol,int tx);
 extern void add_window_for_he(complex32 **X_VHTLTF, complex32 *trans_data, complex32 window_buf[N_TX][3], complex32 **out);
-
+//precoding matrix
+extern void multForMatrix_8(complex32 (*h)[8],complex32* x,complex32* dest);
 #endif // PROCESS_DATA

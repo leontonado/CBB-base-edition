@@ -11,7 +11,7 @@
 #include "../headers/commonStructure.h"
 #endif
 #define _MM_ALIGN32 __attribute__ ((aligned (32)))
-#define Matrix_H 16
+#define Matrix_H 8
 
 #ifdef DEBUGAVX2
 typedef short int16;
@@ -65,6 +65,18 @@ void multForMatrix(complex32 (*h)[Matrix_H],complex32* x,complex32* dest){
 		}
 		dest[j].real=temp.real;
 		dest[j].imag=temp.imag;
+	}
+}
+//for the specific 8*8 matrix
+void multForMatrix_8(complex32 (*h)[8],complex32* x,complex32* dest){
+	int i=0,j=0;
+	for(j=0;j<8;j++){
+		complex32 temp={0,0};
+		for(i=0;i<8;i++){
+			temp=addForComplex32(temp,multForComplex32(h[i][j],x[i]));
+		}
+		(dest+j)->real=temp.real;
+		(dest+j)->imag=temp.imag;
 	}
 }
 
@@ -808,7 +820,7 @@ int main(int argc, char* argv[]){
 	clock_t start_time = clock();
 	//start_time = clock();
 	long int times;
-	for (times = 0; times < 10000000;times++)
+	for (times = 0; times < 10000;times++)
 		multForMatrix(h,x,x_dest);
 	clock_t end_time = clock();
 	//end_time = clock();
@@ -818,9 +830,10 @@ int main(int argc, char* argv[]){
 	printf("use AVX function: mult Matrix\n");
 	//using AVX
 	start_time = clock();
-	for (times = 0; times < 10000000; times++)
+	for (times = 0; times < 10000; times++)
 	//Mult_complex32Vector(a, b, c);
-		Matrix_Mult_AVX2_16(h,x,x_dest);
+		//Matrix_Mult_AVX2_16(h,x,x_dest);
+		Matrix_Mult_AVX2_8(h,x,x_dest);
 	end_time = clock();
 	printf("pall times = %fs\n", (double)(end_time - start_time) / CLOCKS_PER_SEC);
 	printf("The matrix mult answer:\n");
