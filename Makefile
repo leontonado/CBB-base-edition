@@ -54,7 +54,7 @@ VPATH += $(SRCDIR)/Process/process_after_csd
 SRCS-y := maindpdk1.c maindpdk2.c 
 SRCS-y += maindpdk3.c maindpdk4.c
 #SRCS-y += mainbfBCC.c  
-SRCS-y += maindpdk_test.c maindpdk_test_2.c
+#SRCS-y += maindpdk_test.c maindpdk_test_2.c
 SRCS-y += ccoding_byte.c
 
 SRCS-y += ifft.c ifftShiftandIFFTPreamble.c
@@ -90,7 +90,7 @@ CFLAGS += -I$(SRCDIR)/VarINIT
 CFLAGS += -D OPTIMIZATION
 CFLAGS += -D AVX2
 #CFLAGS += -D DPDK_FRAME
-CFLAGS += -g -O0
+#CFLAGS += -g -O0
 #CFLAGS += $(WERROR_FLAGS)
 
 #LDLIBS += -L$(subst main,print_abcd,$(RTE_OUTPUT))/lib

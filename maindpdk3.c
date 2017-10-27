@@ -41,7 +41,7 @@
 
 #define MBUF_CACHE_SIZE 128
 #define NUM_MBUFS 4095
-#define NUM_MBUFS2 255
+#define NUM_MBUFS2 4095
 #define interval 4
 static const char *MBUF_POOL = "MBUF_POOL";
 static const char *Mbuf_for_precoding_pool = "Mbuf_for_precoding_pool";
@@ -255,6 +255,30 @@ static int Data_sendto_RRU_loop()
 			//usleep(10000);
 			continue;
 		}
+		//if(DatatoTTU_Loopcount >= 5000)
+		//{
+		//	quit = 1;
+		//	clock_gettime(CLOCK_REALTIME, &time2);
+		//	time_diff = diff(time1,time2);
+		//	printf("Retrive_DPDK_count = %ld\n", Retrive_DPDK_count);
+		//	printf("DatatoTTU_Loopcount = %ld\n", DatatoTTU_Loopcount);
+		//	printf("Start time # %.24s %ld Nanoseconds \n",ctime(&time1.tv_sec), time1.tv_nsec);
+		//	printf("Stop time # %.24s %ld Nanoseconds \n",ctime(&time2.tv_sec), time2.tv_nsec);
+		//	printf("Running time # %ld.%ld Seconds \n",time_diff.tv_sec, time_diff.tv_nsec);
+		//	printf("GenerateData_Loop1_count = %ld\n", GenerateData_Loop1_count);
+		//	printf("GenerateData_Loop2_count = %ld\n", GenerateData_Loop2_count);
+		//	printf("GenerateData_Loop3_count = %ld\n", GenerateData_Loop3_count);
+		//	printf("GenerateData_Loop4_count = %ld\n", GenerateData_Loop4_count);
+		//	printf("GenerateData_Loop5_count = %ld\n", GenerateData_Loop5_count);
+		//	printf("GenerateData_Loop6_count = %ld\n", GenerateData_Loop6_count);
+		//	printf("GenerateData_Loop7_count = %ld\n", GenerateData_Loop7_count);
+		//	printf("GenerateData_Loop8_count = %ld\n", GenerateData_Loop8_count);
+		//
+		//	printf("Data_Retrive_Loop_count = %ld\n", Data_Retrive_Loop_count);
+		//	printf("Ring_full_count = %ld\n",Ring_full_count);
+		//	printf("mbuf_full_count = %ld\n",mbuf_full_count);
+		//	//free(dest);
+		//}
 	
 	}
 	return 0;
@@ -325,18 +349,6 @@ static int Data_Retrive_Loop()
 		/*while(data1 == NULL) {
 			usleep(100);
 			data1 = rte_pktmbuf_alloc(mbuf_precode_pool);
-		}
-		while(data2 ==	NULL) {
-			usleep(100);
-			data2 = rte_pktmbuf_alloc(mbuf_precode_pool);
-		}
-		while(data3 ==	NULL) {
-			usleep(100);
-			data3 = rte_pktmbuf_alloc(mbuf_precode_pool);
-		}
-		while(data4 ==	NULL) {
-			usleep(100);
-			data4 = rte_pktmbuf_alloc(mbuf_precode_pool);
 		}*/
 		
 		if (!check_empty_Ring()){
@@ -357,13 +369,11 @@ static int Data_Retrive_Loop()
 			User_6 = rte_pktmbuf_mtod_offset((struct rte_mbuf *)Data_User_6, complex32 *,0 );
 			User_7 = rte_pktmbuf_mtod_offset((struct rte_mbuf *)Data_User_7, complex32 *,0 );
 			User_8 = rte_pktmbuf_mtod_offset((struct rte_mbuf *)Data_User_8, complex32 *,0 );
+
 			//Precode_processing
 			k = 0;
 			while(k < 2){
-				while(data == NULL) {
-				usleep(100);
 				data = rte_pktmbuf_alloc(mbuf_precode_pool);
-				}
 				/*switch(k){
 					case 0: data = data1;
 						break;
@@ -378,14 +388,10 @@ static int Data_Retrive_Loop()
 					case 5: data = data6;
 						break;
 					case 6: data = data7;
-						break;ta
+						break;
 					case 7: data = data8;
 						break;
 				}*/
-				/*if(k == 0) data = data1;
-					else if (k == 1) data = data2;
-					else if (k == 2) data = data3;
-					else  data = data4;*/
 				for(i = subcar*N_SYM*N_STS/2*k;i < subcar*N_SYM*N_STS/2*(k+1);i++){
 					X[0] = *(User_1 + i);
 					X[1] = *(User_2 + i);
@@ -395,13 +401,11 @@ static int Data_Retrive_Loop()
 					X[5] = *(User_6 + i);
 					X[6] = *(User_7 + i);
 					X[7] = *(User_8 + i);	
-					//dest = rte_pktmbuf_mtod_offset(data, complex32 *, 8*(i-subcar*N_SYM*N_STS/2*k));
-					//Matrix_Mult_AVX2_8(h,X,dest);	
-					//multForMatrix_8(h,X,dest);			
+					dest = rte_pktmbuf_mtod_offset(data, complex32 *, 8*(i-subcar*N_SYM*N_STS/2*k));
+					Matrix_Mult_AVX2_8(h,X,dest);					
 				}
 				//memcpy(precode_data[k],rte_pktmbuf_mtod_offset(data, complex32 *,0),subcar*N_SYM*N_STS/4*16);
 				rte_ring_enqueue(Ring_DatatoRRU, data);
-				data = NULL;
 				k++;
 			}
 			/*data1 = NULL ;
@@ -439,16 +443,15 @@ static int Data_Retrive_Loop()
 		}
 		else {
 			Data_Retrive_Loop_count++;
-			usleep(1000);
+			//usleep(1000);
 			continue;
 		}
-
-		if(Retrive_DPDK_count >= 100)
+		if(Retrive_DPDK_count >= 10000)
 		{
 			quit = 1;
 			clock_gettime(CLOCK_REALTIME, &time2);
 			time_diff = diff(time1,time2);
-	 		printf("Retrive_DPDK_count = %ld\n", Retrive_DPDK_count);
+			printf("Retrive_DPDK_count = %ld\n", Retrive_DPDK_count);
 			printf("DatatoTTU_Loopcount = %ld\n", DatatoTTU_Loopcount);
 			printf("Start time # %.24s %ld Nanoseconds \n",ctime(&time1.tv_sec), time1.tv_nsec);
 			printf("Stop time # %.24s %ld Nanoseconds \n",ctime(&time2.tv_sec), time2.tv_nsec);
@@ -467,6 +470,7 @@ static int Data_Retrive_Loop()
 			printf("mbuf_full_count = %ld\n",mbuf_full_count);
 			//free(dest);
 		}
+
 	}
 	return 0;
 }
@@ -842,7 +846,7 @@ main(int argc, char **argv)
 	Ring_RetriveData7 = rte_ring_create(RetriveData7 , ring_size, rte_socket_id(), RING_F_SP_ENQ|RING_F_SC_DEQ);
 	Ring_RetriveData8 = rte_ring_create(RetriveData8 , ring_size, rte_socket_id(), RING_F_SP_ENQ|RING_F_SC_DEQ);
 
-	Ring_DatatoRRU = rte_ring_create(DatatoRRU, 256, rte_socket_id(), RING_F_SP_ENQ|RING_F_SC_DEQ);
+	Ring_DatatoRRU = rte_ring_create(DatatoRRU, ring_size, rte_socket_id(), RING_F_SP_ENQ|RING_F_SC_DEQ);//ring_size  over is 256
 
 	if (Ring_GenerateData1 == NULL)
 		rte_exit(EXIT_FAILURE, "Problem getting sending ring\n");
@@ -883,7 +887,7 @@ main(int argc, char **argv)
 
 	/* Creates a new mempool in memory to hold the mbufs. */
 	mbuf_pool = rte_pktmbuf_pool_create(MBUF_POOL, NUM_MBUFS,
-		MBUF_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE*10, rte_socket_id());
+		MBUF_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE*30, rte_socket_id());
 
 	mbuf_precode_pool = rte_pktmbuf_pool_create(Mbuf_for_precoding_pool,NUM_MBUFS2,MBUF_CACHE_SIZE,
 		0,RTE_MBUF_DEFAULT_BUF_SIZE*18,rte_socket_id());

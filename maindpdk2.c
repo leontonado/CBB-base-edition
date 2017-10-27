@@ -31,9 +31,9 @@
 #include <time.h> 
 
 #include "allHeaders.h"
-//This version runs in the format of frame,which 8 pthread run on 8 individual cores 
+//This version runs in the format of frame,which has 16 users 
 
-//#define RUNMAINDPDK
+#define RUNMAINDPDK
 #ifdef RUNMAINDPDK
 
 #define RTE_LOGTYPE_APP RTE_LOGTYPE_USER1
@@ -41,7 +41,7 @@
 
 #define MBUF_CACHE_SIZE 128
 #define NUM_MBUFS 4095
-#define	NUM_MBUFS2 511
+#define	NUM_MBUFS2 4095
 #define interval 4
 static const char *MBUF_POOL = "MBUF_POOL";
 static const char *Mbuf_for_precoding_pool = "Mbuf_for_precoding_pool";
@@ -349,10 +349,10 @@ static int check_empty_Ring()
 }
 static int Data_Retrive_Loop() 
 {
-	// struct rte_mbuf *data1 = NULL;
-	// struct rte_mbuf *data2 = NULL;
-	// struct rte_mbuf *data3 = NULL;
-	// struct rte_mbuf *data4 = NULL;
+	struct rte_mbuf *data1 = NULL;
+	struct rte_mbuf *data2 = NULL;
+	struct rte_mbuf *data3 = NULL;
+	struct rte_mbuf *data4 = NULL;
 	__attribute__((unused)) struct rte_mbuf *data = NULL;
 	void *Data_User_1=NULL;
 	void *Data_User_2=NULL;
@@ -403,22 +403,22 @@ static int Data_Retrive_Loop()
 
 	while (!quit)
 	{		
-		// while(data1 ==	NULL) {
-		// 	usleep(100);
-		// 	data1 = rte_pktmbuf_alloc(mbuf_precode_pool);
-		// }
-		// while(data2 ==	NULL) {
-		// 	usleep(100);
-		// 	data2 = rte_pktmbuf_alloc(mbuf_precode_pool);
-		// }
-		// while(data3 ==	NULL) {
-		// 	usleep(100);
-		// 	data3 = rte_pktmbuf_alloc(mbuf_precode_pool);
-		// }
-		// while(data4 ==	NULL) {
-		// 	usleep(100);
-		// 	data4 = rte_pktmbuf_alloc(mbuf_precode_pool);
-		// }		
+		while(data1 ==	NULL) {
+			usleep(100);
+			data1 = rte_pktmbuf_alloc(mbuf_precode_pool);
+		}
+		while(data2 ==	NULL) {
+			usleep(100);
+			data2 = rte_pktmbuf_alloc(mbuf_precode_pool);
+		}
+		while(data3 ==	NULL) {
+			usleep(100);
+			data3 = rte_pktmbuf_alloc(mbuf_precode_pool);
+		}
+		while(data4 ==	NULL) {
+			usleep(100);
+			data4 = rte_pktmbuf_alloc(mbuf_precode_pool);
+		}		
 		if (!check_empty_Ring()){			
 				Retrive_DPDK_count++;
 				while(rte_ring_dequeue(Ring_RetriveData1, &Data_User_1) < 0);
@@ -457,14 +457,14 @@ static int Data_Retrive_Loop()
 				//Precode_processing
 				k = 0;
 				while(k<4){
-					// if(k == 0) data = data1;
-					// 	else if (k == 1) data = data2;
-					// 	else if (k == 2) data = data3;
-					// 	else  data = data4;
-					while(data == NULL) {
-						usleep(100);
-						data = rte_pktmbuf_alloc(mbuf_precode_pool);
-					}
+					if(k == 0) data = data1;
+						else if (k == 1) data = data2;
+						else if (k == 2) data = data3;
+						else  data = data4;
+					// while(data == NULL) {
+					// 	usleep(1000);
+					// 	data = rte_pktmbuf_alloc(mbuf_precode_pool);
+					//}
 					for(i = subcar*N_SYM*N_STS/4*k ; i < subcar*N_SYM*N_STS/4*(k+1); i++){
 						X[0] = *(User_1 + i);
 						X[1] = *(User_2 + i);
@@ -482,19 +482,17 @@ static int Data_Retrive_Loop()
 						X[13] = *(User_14 + i);
 						X[14] = *(User_15 + i);
 						X[15] = *(User_16 + i);						
-						//dest = rte_pktmbuf_mtod_offset(data, complex32 *, 16*(i-subcar*N_SYM*N_STS/4*k));
-						//Matrix_Mult_AVX2_16(h,X,dest);					
+						 dest = rte_pktmbuf_mtod_offset(data, complex32 *, 16*(i-subcar*N_SYM*N_STS/4*k));
+						 Matrix_Mult_AVX2_16(h,X,dest);					
 					}
-					//memcpy(precode_data[k],rte_pktmbuf_mtod_offset(data, complex32 *,0),subcar*N_SYM*N_STS/4*16);
 					rte_ring_enqueue(Ring_DatatoRRU,data);
-					data = NULL;
+					//data = NULL;
 					k++;
 				}
-				// data1 = NULL ;
-				// data2 = NULL ;
-				// data3 = NULL ;
-				// data4 = NULL ;
-				data = NULL ;
+				data1 = NULL ;
+				data2 = NULL ;
+				data3 = NULL ;
+				data4 = NULL ;
 								
 				/*FILE *ts =fopen("precoding_data.txt","w");
 					for(i=0;i<4;i++)
@@ -551,7 +549,6 @@ static int Data_Retrive_Loop()
 			printf("Data_Retrive_Loop_count = %ld\n", Data_Retrive_Loop_count);
 			printf("Ring_full_count = %ld\n",Ring_full_count);
 			printf("mbuf_full_count = %ld\n",mbuf_full_count);
-			free(dest);
 		}
 	}
 	return 0;
@@ -1309,7 +1306,7 @@ main(int argc, char **argv)
 
 	/* Creates a new mempool in memory to hold the mbufs. */
 	mbuf_pool = rte_pktmbuf_pool_create(MBUF_POOL, NUM_MBUFS,
-		MBUF_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE*10, rte_socket_id());
+		MBUF_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE*30, rte_socket_id());
 
 	mbuf_precode_pool = rte_pktmbuf_pool_create(Mbuf_for_precoding_pool,NUM_MBUFS2,MBUF_CACHE_SIZE,
 		0,RTE_MBUF_DEFAULT_BUF_SIZE*18,rte_socket_id());

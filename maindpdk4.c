@@ -31,9 +31,9 @@
 #include <time.h> 
 
 #include "allHeaders.h"
-//This version runs in the format of frame,which 8 pthread run on 8 individual cores 
+//This version runs in the format of frame,which 4 users run on 4 individual cores 
 
-#define RUNMAINDPDK
+//#define RUNMAINDPDK
 #ifdef RUNMAINDPDK
 
 #define RTE_LOGTYPE_APP RTE_LOGTYPE_USER1
@@ -86,7 +86,6 @@ long int Ring_full_count = 0;
 long int mbuf_full_count = 0;
 long int DatatoTTU_Loopcount = 0;
 
-complex32 precode_data[4][256*2*16];
 
 
 int N_CBPS, N_SYM, ScrLength, valid_bits;
@@ -232,26 +231,26 @@ static int Data_sendto_RRU_loop()
 			//usleep(10000);
 			continue;
 		}
-		if(DatatoTTU_Loopcount >= 1000)
-			{
-			quit = 1;
-			clock_gettime(CLOCK_REALTIME, &time2);
-			time_diff = diff(time1,time2);
-			printf("Retrive_DPDK_count = %ld\n", Retrive_DPDK_count);
-			printf("DatatoTTU_Loopcount = %ld\n", DatatoTTU_Loopcount);
-			printf("Start time # %.24s %ld Nanoseconds \n",ctime(&time1.tv_sec), time1.tv_nsec);
-			printf("Stop time # %.24s %ld Nanoseconds \n",ctime(&time2.tv_sec), time2.tv_nsec);
-			printf("Running time # %ld.%ld Seconds \n",time_diff.tv_sec, time_diff.tv_nsec);
-			printf("GenerateData_Loop1_count = %ld\n", GenerateData_Loop1_count);
-			printf("GenerateData_Loop2_count = %ld\n", GenerateData_Loop2_count);
-			printf("GenerateData_Loop3_count = %ld\n", GenerateData_Loop3_count);
-			printf("GenerateData_Loop4_count = %ld\n", GenerateData_Loop4_count);
+		// if(DatatoTTU_Loopcount >= 1000)
+		// 	{
+		// 	quit = 1;
+		// 	clock_gettime(CLOCK_REALTIME, &time2);
+		// 	time_diff = diff(time1,time2);
+		// 	printf("Retrive_DPDK_count = %ld\n", Retrive_DPDK_count);
+		// 	printf("DatatoTTU_Loopcount = %ld\n", DatatoTTU_Loopcount);
+		// 	printf("Start time # %.24s %ld Nanoseconds \n",ctime(&time1.tv_sec), time1.tv_nsec);
+		// 	printf("Stop time # %.24s %ld Nanoseconds \n",ctime(&time2.tv_sec), time2.tv_nsec);
+		// 	printf("Running time # %ld.%ld Seconds \n",time_diff.tv_sec, time_diff.tv_nsec);
+		// 	printf("GenerateData_Loop1_count = %ld\n", GenerateData_Loop1_count);
+		// 	printf("GenerateData_Loop2_count = %ld\n", GenerateData_Loop2_count);
+		// 	printf("GenerateData_Loop3_count = %ld\n", GenerateData_Loop3_count);
+		// 	printf("GenerateData_Loop4_count = %ld\n", GenerateData_Loop4_count);
 
-			printf("Data_Retrive_Loop_count = %ld\n", Data_Retrive_Loop_count);
-			printf("Ring_full_count = %ld\n",Ring_full_count);
-			printf("mbuf_full_count = %ld\n",mbuf_full_count);
-			//free(dest);
-			}
+		// 	printf("Data_Retrive_Loop_count = %ld\n", Data_Retrive_Loop_count);
+		// 	printf("Ring_full_count = %ld\n",Ring_full_count);
+		// 	printf("mbuf_full_count = %ld\n",mbuf_full_count);
+		// 	//free(dest);
+		// 	}
 	
 	}
 	return 0;
@@ -287,10 +286,10 @@ static int Data_Retrive_Loop()
 	complex32 *dest = NULL;
 	complex32 X[4] = {{0,0}};
 	//get the precoding matrix
-	complex32 h[16][16];
+	complex32 h[4][4];
 	srand((unsigned)time(NULL));
-	for(i=0; i<16 ; i++){
-		for (j = 0; j < 16; j++){
+	for(i=0; i<4 ; i++){
+		for (j = 0; j < 4; j++){
 			h[i][j].real = (double)(rand() / (double)RAND_MAX) * (0x1 << 13);
 			h[i][j].imag = (double)(rand() / (double)RAND_MAX) * (0x1 << 13);
 		}
@@ -298,7 +297,7 @@ static int Data_Retrive_Loop()
 
 	while (!quit)
 	{		
-		while(data ==	NULL) {
+		while(data == NULL) {
 			usleep(100);
 			data = rte_pktmbuf_alloc(mbuf_precode_pool);
 		}
@@ -314,20 +313,17 @@ static int Data_Retrive_Loop()
 			User_4 = rte_pktmbuf_mtod_offset((struct rte_mbuf *)Data_User_4, complex32 *,0 );
 			// //Precode_processing
 
-			// for(i = 0 ; i < subcar*N_SYM*N_STS ; i++){
-			// 	X[0] = *(User_1 + i);
-			// 	X[1] = *(User_2 + i);
-			// 	X[2] = *(User_3 + i);
-			// 	X[3] = *(User_4 + i);	
-			// 	dest = rte_pktmbuf_mtod_offset(data, complex32 *, 4*i);
-			// 	//Matrix_Mult_AVX2_16(h,X,dest);					
-			// }
-			//memcpy(precode_data[k],rte_pktmbuf_mtod_offset(data, complex32 *,0),subcar*N_SYM*N_STS/4*16);
+			for(i = 0 ; i < subcar*N_SYM*N_STS ; i++){
+				X[0] = *(User_1 + i);
+				X[1] = *(User_2 + i);
+				X[2] = *(User_3 + i);
+				X[3] = *(User_4 + i);	
+				dest = rte_pktmbuf_mtod_offset(data, complex32 *, 4*i);	
+				Mult_Matrix_AVX2_4(h,X,dest);				
+			}
 			rte_ring_enqueue(Ring_DatatoRRU, data);
 			data = NULL ;			
-			/*FILE *ts =fopen("precoding_data.txt","w");
-				for(i=0;i<4;i++)
-					printStreamToFile(precode_data[i],subcar*N_SYM*N_STS/4*16,ts);	*/
+
 			rte_mempool_put(((struct rte_mbuf *)Data_User_1)->pool, Data_User_1);
 			rte_mempool_put(((struct rte_mbuf *)Data_User_2)->pool, Data_User_2);
 			rte_mempool_put(((struct rte_mbuf *)Data_User_3)->pool, Data_User_3);
@@ -346,7 +342,25 @@ static int Data_Retrive_Loop()
 			usleep(1000);
 			continue;
 		}
-		
+		if(Retrive_DPDK_count >= 10000)
+		{
+			quit = 1;
+			clock_gettime(CLOCK_REALTIME, &time2);
+			time_diff = diff(time1,time2);
+	 		printf("Retrive_DPDK_count = %ld\n", Retrive_DPDK_count);
+			printf("DatatoTTU_Loopcount = %ld\n", DatatoTTU_Loopcount);
+			printf("Start time # %.24s %ld Nanoseconds \n",ctime(&time1.tv_sec), time1.tv_nsec);
+			printf("Stop time # %.24s %ld Nanoseconds \n",ctime(&time2.tv_sec), time2.tv_nsec);
+			printf("Running time # %ld.%ld Seconds \n",time_diff.tv_sec, time_diff.tv_nsec);
+			printf("GenerateData_Loop1_count = %ld\n", GenerateData_Loop1_count);
+			printf("GenerateData_Loop2_count = %ld\n", GenerateData_Loop2_count);
+			printf("GenerateData_Loop3_count = %ld\n", GenerateData_Loop3_count);
+			printf("GenerateData_Loop4_count = %ld\n", GenerateData_Loop4_count);
+			printf("Data_Retrive_Loop_count = %ld\n", Data_Retrive_Loop_count);
+			printf("Ring_full_count = %ld\n",Ring_full_count);
+			printf("mbuf_full_count = %ld\n",mbuf_full_count);
+			//free(dest);
+		}
 	
 	}
 	return 0;
@@ -501,7 +515,6 @@ static int ReadData_Loop()
 			Data = rte_pktmbuf_alloc(mbuf_pool);
 			if (Data != NULL){
 				ReadData(Data, Data_in);
-				//rte_ring_enqueue(Ring_Beforescramble, Data);
 				dis_count++;
 				if(dis_count == interval*4){
 					dis_count = 0;
@@ -613,7 +626,7 @@ main(int argc, char **argv)
 
 	/* Creates a new mempool in memory to hold the mbufs. */
 	mbuf_pool = rte_pktmbuf_pool_create(MBUF_POOL, NUM_MBUFS,
-		MBUF_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE*10, rte_socket_id());
+		MBUF_CACHE_SIZE, 0, RTE_MBUF_DEFAULT_BUF_SIZE*30, rte_socket_id());
 
 	mbuf_precode_pool = rte_pktmbuf_pool_create(Mbuf_for_precoding_pool,NUM_MBUFS2,MBUF_CACHE_SIZE,
 		0,RTE_MBUF_DEFAULT_BUF_SIZE*18,rte_socket_id());

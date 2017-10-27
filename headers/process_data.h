@@ -47,4 +47,5 @@ extern void addCPforData(complex32* pAfterIFFT,complex32* pBeforeAddWin,int N_SY
 extern void add_window_for_he(complex32 **X_VHTLTF, complex32 *trans_data, complex32 window_buf[N_TX][3], complex32 **out);
 //precoding matrix
 extern void multForMatrix_8(complex32 (*h)[8],complex32* x,complex32* dest);
+extern void Mult_Matrix_AVX2_4(complex32 (*h)[4],complex32* x,complex32* dest);
 #endif // PROCESS_DATA

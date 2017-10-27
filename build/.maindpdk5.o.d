@@ -1,4 +1,5 @@
-dep_test.o = /home/felix/projects/edition/test.c /usr/include/stdc-predef.h \
+dep_maindpdk5.o = /home/felix/projects/edition/maindpdk5.c \
+ /usr/include/stdc-predef.h \
  /home/felix/projects/edition/dpdk-stable-16.11.1/x86_64-native-linuxapp-gcc/include/rte_config.h \
  /usr/include/stdio.h /usr/include/features.h \
  /usr/include/x86_64-linux-gnu/sys/cdefs.h \

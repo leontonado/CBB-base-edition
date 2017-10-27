@@ -1,4 +1,5 @@
-dep_test.o = /home/felix/projects/edition/test.c /usr/include/stdc-predef.h \
+dep_maindpdk_test.o = /home/felix/projects/edition/maindpdk_test.c \
+ /usr/include/stdc-predef.h \
  /home/felix/projects/edition/dpdk-stable-16.11.1/x86_64-native-linuxapp-gcc/include/rte_config.h \
  /usr/include/stdio.h /usr/include/features.h \
  /usr/include/x86_64-linux-gnu/sys/cdefs.h \
@@ -143,7 +144,6 @@ dep_test.o = /home/felix/projects/edition/test.c /usr/include/stdc-predef.h \
  /home/felix/projects/edition/dpdk-stable-16.11.1/x86_64-native-linuxapp-gcc/include/rte_prefetch.h \
  /home/felix/projects/edition/dpdk-stable-16.11.1/x86_64-native-linuxapp-gcc/include/generic/rte_prefetch.h \
  /home/felix/projects/edition/dpdk-stable-16.11.1/x86_64-native-linuxapp-gcc/include/rte_mbuf_ptype.h \
- /home/felix/projects/edition/dpdk-stable-16.11.1/x86_64-native-linuxapp-gcc/include/rte_errno.h \
  /home/felix/projects/edition/allHeaders.h \
  /home/felix/projects/edition/./headers/commonStructure.h \
  /home/felix/projects/edition/./headers/integerTypeDef.h \

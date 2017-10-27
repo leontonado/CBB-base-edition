@@ -30,6 +30,9 @@
 #include <time.h> 
 
 #include "allHeaders.h"
+//maindpdk_test.c and maindpdk_test_2.c are two editions running in terms of modules in spite of 
+//not having added precoding part
+
 
 //#define RUNMAINDPDK
 #ifdef RUNMAINDPDK

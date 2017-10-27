@@ -33,7 +33,7 @@
 
 //#define RUNMAINDPDK
 #ifdef RUNMAINDPDK
-//This version runs in order of modules,which proceed in respective core
+//This version runs in order of modules,which proceed in respective core (precoding part hasn't been added)
 
 #define RTE_LOGTYPE_APP RTE_LOGTYPE_USER1
 // #define MEMPOOL_F_SP_PUT         0x0
